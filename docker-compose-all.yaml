@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  elmer-log-producer:
+    image: elmer-log-producer
+    restart: always
+    container_name: elmer-log-producer
+    ports:
+      - 9095:9095
+    environment:
+      - SERVER_PORT=9095
