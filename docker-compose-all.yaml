@@ -17,7 +17,6 @@ services:
     container_name: elmer-elasticsearch
     ports:
       - 9200:9200
-      - 9300:9300
     environment:
       - cluster.name=elmer-docker-cluster
       - xpack.security.enabled=false
