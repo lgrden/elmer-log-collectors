@@ -9,3 +9,48 @@ services:
       - 9095:9095
     environment:
       - SERVER_PORT=9095
+
+  elmer-elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+    container_name: elmer-elasticsearch
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - cluster.name=elmer-docker-cluster
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
+  elmer-kibana:
+    image: docker.elastic.co/kibana/kibana:6.2.2
+    container_name: elmer-kibana
+    ports:
+      - 5601:5601
+    env_file:
+      - docker.env
+    environment:
+      - ELASTICSEARCH_URL=http://${HOST_IP}:9200
+    depends_on:
+      - elmer-elasticsearch
+
+  elmer-logstash:
+    image: docker.elastic.co/logstash/logstash:6.2.2
+    container_name: elmer-logstash
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    volumes:
+      - ./logstash:/etc/logstash/conf.d
+    ports:
+      - 5000:5000
+    env_file:
+      - docker.env
+    environment:
+      - ELASTICSEARCH_HOST=${HOST_IP}:9200
+      - LOGSTASH_PORT=5000
+      - XPACK_MONITORING_ELASTICSEARCH_URL=http://${HOST_IP}:9200
+      - XPACK_MONITORING_ENABLED=false
+    depends_on:
+      - elmer-elasticsearch
+
+volumes:
+  elasticsearch-data:
